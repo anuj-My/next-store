@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 - favorites
 - orders
 - products
-- reviews
+- reviews 
 
 - new file - pageName/page.tsx
 
