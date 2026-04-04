@@ -12,7 +12,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Product {
+model Products {
   id           String     @id @default(uuid())
   name        String
   company     String

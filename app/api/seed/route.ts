@@ -2,7 +2,7 @@ import db from "@/utils/db";
 import products from "@/utils/products.json";
 
 export async function GET() {
-  await db.product.createMany({
+  await db.products.createMany({
     data: products,
   });
 
