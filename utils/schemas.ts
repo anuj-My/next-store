@@ -17,10 +17,10 @@ export const productSchema = z.object({
   description: z.string().refine(
     (description) => {
       const wordCount = description.split(" ").length;
-      return wordCount >= 10 && wordCount <= 1000;
+      return wordCount >= 8 && wordCount <= 1000;
     },
     {
-      message: "description must be between 10 and 1000 words.",
+      message: "description must be between 8 and 1000 words.",
     },
   ),
 });
@@ -30,9 +30,29 @@ export function validateWithSchema<T>(schema: ZodSchema<T>, data: unknown): T {
 
   if (!result.success) {
     const errors = result.error.issues.map((err) => err.message);
-
+    console.log(errors);
     throw new Error(errors.join(", "));
   }
 
   return result.data;
+}
+
+export const imageSchema = z.object({
+  image: validateImageFile(),
+});
+
+function validateImageFile() {
+  const maxUploadSize = 1024 * 1024;
+  const acceptedFileTypes = ["image/"];
+
+  return z
+    .instanceof(File)
+    .refine((file) => {
+      return !file || file.size <= maxUploadSize;
+    }, "File size must be less than 1MB")
+    .refine((file) => {
+      return (
+        !file || acceptedFileTypes.some((type) => file.type.startsWith(type))
+      );
+    }, "File must be an image");
 }
