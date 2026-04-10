@@ -114,3 +114,50 @@ export const deleteProductAction = async (prevState: { productId: string }) => {
     return renderError(error);
   }
 };
+
+export const fetchAdminProductDetails = async (productId: string) => {
+  await getAdminUser();
+
+  const product = await db.products.findUnique({
+    where: {
+      id: productId,
+    },
+  });
+
+  if (!product) redirect("/admin/products");
+  return product;
+};
+
+export const updateProductAction = async (
+  prevState: any,
+  formData: FormData,
+) => {
+  await getAdminUser();
+
+  try {
+    const productId = formData.get("id") as string;
+    const rawData = Object.fromEntries(formData);
+
+    const validateFields = validateWithSchema(productSchema, rawData);
+
+    await db.products.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        ...validateFields,
+      },
+    });
+    revalidatePath(`/admin/products/${productId}/edit`);
+    return { message: "product updated successfully" };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const updateProductImageAction = async (
+  prevState: any,
+  formData: FormData,
+) => {
+  return { message: "product image updated successfully" };
+};
