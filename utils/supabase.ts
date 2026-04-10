@@ -22,3 +22,34 @@ export const uploadImage = async (image: File) => {
 
   return supabase.storage.from(bucket).getPublicUrl(newName).data.publicUrl;
 };
+
+// export const deleteImage = async (url: string) => {
+//   const decodedUrl = decodeURIComponent(url);
+//   const path = decodedUrl.split(`/object/public/${bucket}/`)[1];
+
+//   console.log("Deleting path:", path);
+
+//   if (!path) throw new Error("Invalid image URL");
+
+//   return supabase.storage.from(bucket).remove([path]);
+// };
+
+export const deleteImage = async (url: string) => {
+  const decodedUrl = decodeURIComponent(url);
+  const path = decodedUrl.split(`/object/public/${bucket}/`)[1];
+
+  console.log("Deleting path:", path);
+
+  if (!path) throw new Error("Invalid image URL");
+
+  const { data, error } = await supabase.storage.from(bucket).remove([path]);
+
+  console.log("Delete response:", data);
+  console.log("Delete error:", error);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
