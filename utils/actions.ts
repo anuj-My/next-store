@@ -159,6 +159,7 @@ export const updateProductImageAction = async (
   prevState: any,
   formData: FormData,
 ) => {
+  await getAdminUser();
   try {
     const image = formData.get("image") as File;
     const productId = formData.get("id") as string;
@@ -179,6 +180,53 @@ export const updateProductImageAction = async (
     });
     revalidatePath(`/admin/products/${productId}/edit`);
     return { message: "product image updated successfully" };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const fetchFavoriteId = async ({ productId }: { productId: string }) => {
+  const user = await getAuthUser();
+  const favorite = await db.favorite.findFirst({
+    where: {
+      productId,
+      clerkId: user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+  return favorite?.id || null;
+};
+
+export const toggleFavoriteAction = async (prevState: {
+  productId: string;
+  favoriteId: string | null;
+  pathname: string;
+}) => {
+  const user = await getAuthUser();
+
+  const { productId, favoriteId, pathname } = prevState;
+
+  try {
+    if (favoriteId) {
+      await db.favorite.delete({
+        where: {
+          id: favoriteId,
+        },
+      });
+    } else {
+      await db.favorite.create({
+        data: {
+          productId,
+          clerkId: user.id,
+        },
+      });
+    }
+    revalidatePath(pathname);
+    return {
+      message: favoriteId ? "removed from favorites" : "added to favorites",
+    };
   } catch (error) {
     return renderError(error);
   }
